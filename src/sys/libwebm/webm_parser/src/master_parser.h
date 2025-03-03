@@ -147,20 +147,17 @@ class MasterParser : public ElementParser {
     /* clang-format on */
   };
 
-  using StdHashIdKeyType = std::underlying_type<Id>::type;
-  using StdHashId = std::hash<StdHashIdKeyType>;
+  using StdHashId = std::hash<std::underlying_type<Id>::type>;
 
   // Hash functor for hashing Id enums for storage in std::unordered_map.
   struct IdHash : StdHashId {
-#if __cpp_lib_is_invocable
-    using result_type = std::invoke_result<StdHashId, StdHashIdKeyType>::type;
-#else
+    // Type aliases for conforming to the std::hash interface.
+    using argument_type = Id;
     using result_type = StdHashId::result_type;
-#endif  // __cpp_lib_is_invocable
 
     // Returns the hash of the given id.
-    result_type operator()(Id id) const {
-      return StdHashId::operator()(static_cast<StdHashIdKeyType>(id));
+    result_type operator()(argument_type id) const {
+      return StdHashId::operator()(static_cast<StdHashId::argument_type>(id));
     }
   };
 
